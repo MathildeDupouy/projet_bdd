@@ -1,0 +1,10 @@
+-- Table: public.vehicule
+
+-- DROP TABLE IF EXISTS public.vehicule;
+
+CREATE TABLE IF NOT EXISTS public.vehicule
+(
+    immatriculation char(10) PRIMARY KEY,
+    taille float NOT NULL,
+    modele varchar(50) NOT NULL
+)

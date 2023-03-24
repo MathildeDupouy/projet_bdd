@@ -1,0 +1,4 @@
+-- user
+
+CREATE USER :user_db 
+WITH PASSWORD :'pwd_db';

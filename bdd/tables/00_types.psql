@@ -1,0 +1,5 @@
+-- Type: public.materiau_type
+
+-- DROP TYPE IF EXISTS public.materiau_type;
+
+CREATE TYPE public.materiau_type AS ENUM ('PVC', 'CAOUTCHOUC');

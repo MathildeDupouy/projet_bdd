@@ -1,0 +1,16 @@
+-- Table: public.chantier
+
+-- DROP TABLE IF EXISTS public.chantier;
+
+CREATE TABLE IF NOT EXISTS public.chantier
+(
+    id serial PRIMARY KEY,
+    debut timestamp with time zone NOT NULL,
+    fin timestamp with time zone NOT NULL,
+    commentaire varchar(100),
+    materiau materiau_type NOT NULL,
+    id_client int NOT NULL,
+    facture int NOT NULL,
+        CONSTRAINT chantier_idclient_fkey FOREIGN KEY (id_client)
+        REFERENCES public.client (id) MATCH SIMPLE
+)

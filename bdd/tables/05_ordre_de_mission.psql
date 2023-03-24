@@ -1,0 +1,16 @@
+-- Table: public.ordre_de_mission
+
+-- DROP TABLE IF EXISTS public.ordre_de_mission;
+
+CREATE TABLE IF NOT EXISTS public.ordre_de_mission
+(
+    id serial PRIMARY KEY,
+    id_chantier int NOT NULL,
+    id_ouvrier int NOT NULL,
+    debut timestamp with time zone NOT NULL,
+    fin timestamp with time zone NOT NULL,
+        CONSTRAINT ordre_idchantier_fkey FOREIGN KEY (id_chantier)
+        REFERENCES public.chantier (id) MATCH SIMPLE,
+        CONSTRAINT ordre_idouvrier_fkey FOREIGN KEY (id_ouvrier)
+        REFERENCES public.ouvrier (id) MATCH SIMPLE
+)

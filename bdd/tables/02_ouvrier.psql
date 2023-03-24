@@ -1,0 +1,11 @@
+-- Table: public.ouvrier
+
+-- DROP TABLE IF EXISTS public.ouvrier;
+
+CREATE TABLE IF NOT EXISTS public.ouvrier
+(
+    id serial PRIMARY KEY,
+    nom varchar(50) NOT NULL,
+    prenom varchar(50) NOT NULL,
+    poste varchar(50) NOT NULL
+)

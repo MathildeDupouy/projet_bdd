@@ -1,0 +1,8 @@
+
+DROP TABLE IF EXISTS public.ordre_de_mission;
+DROP TABLE IF EXISTS public.reservation;
+DROP TABLE IF EXISTS public.chantier;
+DROP TABLE IF EXISTS public.vehicule;
+DROP TABLE IF EXISTS public.ouvrier;
+DROP TABLE IF EXISTS public.client;
+DROP TYPE IF EXISTS public.materiau_type;
