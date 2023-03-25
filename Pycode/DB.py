@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Spyder Editor
 
-This is a temporary script file.
+
+
 """
 import psycopg2 as psyg
 from psycopg2 import OperationalError
@@ -39,8 +39,25 @@ class Database():
             print(f"Nombre de chantier en cours : {len(record)}")
             for i, line in enumerate(record):
                 print(f"Chantier {i} : {line[0]} de {line[1]} à {line[2]}, {line[3]}")
+    
+    def __repr__(self):
+        query = """SELECT table_name FROM information_schema.tables
+       WHERE table_schema = 'public'"""
+        with self.conn:
+            with self.conn.cursor() as curs:
+                try:
+                    curs.execute(query)
+                    record = curs.fetchall()
+                except OperationalError as e:
+                    print(f"The error '{e}' occured dans '__repr__'")
+                    record = None
+        txt =  "              List of relations\n"
+        txt += "Schema |        Name        | Type  |  Owner\n"
+        txt += "-------+--------------------+-------+----------\n"
+        for name in record:
+            txt += "public | {:^19}| table | {}\n".format(name[0], self.user)
+        return txt
 
+a = Database("postgres", "postgres", "admin","localhost","5432")
 
-a = Database("name", "ben", "eee","localhost","5432")
-
-print("fin test")
+print(a)
