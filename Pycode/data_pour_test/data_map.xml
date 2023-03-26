@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<data>
+	<client>
+		<record>
+		  <nom>a</nom>
+	   </record>
+	   <record>
+		  <nom>z</nom>
+	   </record>
+	</client>
+
+	<Chantier>
+		<record>
+		  <debut>a</debut>
+		  <fin>b</fin>
+		  <commentaire>c</commentaire>
+		  <materiau>d</materiau>
+		  <id_client>e</id_client>
+		  <facture>f</facture>
+	   </record>
+	   <record>
+		  <debut>z</debut>
+		  <fin>y</fin>
+		  <commentaire>x</commentaire>
+		  <materiau>w</materiau>
+		  <id_client>v</id_client>
+		  <facture>u</facture>
+	   </record>
+	</Chantier>
+
+	<ouvrier>
+		<record>
+		  <nom>a</nom>
+		  <prenom>b</prenom>
+		  <poste>c</poste>
+	   </record>
+	   <record>
+		  <nom>z</nom>
+		  <prenom>y</prenom>
+		  <poste>x</poste>
+	   </record>
+	</ouvrier>
+
+	<ordre_de_mission>
+		<record>
+		  <id_chantier>a</id_chantier>
+		  <id_ouvrier>b</id_ouvrier>
+		  <debut>c</debut>
+		  <fin>d</fin>
+	   </record>
+	   <record>
+		  <id_chantier>z</id_chantier>
+		  <id_ouvrier>y</id_ouvrier>
+		  <debut>x</debut>
+		  <fin>w</fin>
+	   </record>
+	</ordre_de_mission>
+
+	<reservation>
+		<record>
+		  <id_chantier>a</id_chantier>
+		  <immatriculation>b</immatriculation>
+		  <debut>c</debut>
+		  <fin>d</fin>
+	   </record>
+	   <record>
+		  <id_chantier>z</id_chantier>
+		  <immatriculation>y</immatriculation>
+		  <debut>x</debut>
+		  <fin>w</fin>
+	   </record>
+	</reservation>
+
+	<vehicule>
+		<record>
+		  <immatriculation>a</immatriculation>
+		  <taille>b</taille>
+		  <modele>c</modele>
+	   </record>
+	   <record>
+		  <immatriculation>a</immatriculation>
+		  <taille>b</taille>
+		  <modele>c</modele>
+	   </record>
+	</vehicule>
+
+</data>
