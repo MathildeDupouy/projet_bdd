@@ -175,7 +175,12 @@ class Database_Insert(Database):
                 query += ");"
         return query
 
-
+    def load_csv(self, filename):
+        """
+        insère dans la table les données de filename qui doit être placé dans le dossier data
+        """
+        with open("data/{}".format(filename), 'r') as f:
+            
 class Database_Read(Database):
     def get_current_chantiers(self, show = False):
         self.connect()
@@ -201,7 +206,7 @@ class Database_Read(Database):
 
 
 
-a = Database("postgres", "postgres", "admin","localhost","5432")
+a = Database("projet", "admin", "admin","localhost","5432")
 
 print(a)
 
