@@ -7,6 +7,7 @@
 import psycopg2 as psyg
 from psycopg2 import OperationalError
 import xml.etree.ElementTree as et
+import os
 import datetime
 
 class Database():
@@ -129,7 +130,7 @@ class Database_Insert(Database):
                     try:
                         curs.execute(query)
                     except OperationalError as e:
-                        print(f"The error '{e}' occured in 'Insert_client''")
+                        print(f"The error '{e}' occured in 'Insert_{table_name}'")
             self.conn.commit()
         return None
     
@@ -145,7 +146,6 @@ class Database_Insert(Database):
         liste = []
         for value in data.values():
             liste.append(value)
-        print(liste)
         if n == 1:
             query += " ('" + str(liste[0]) + "'"
             for elt in liste[1:]:
@@ -162,29 +162,41 @@ class Database_Insert(Database):
                 query += ");"
         return query
 
-    def load_csv(self, filename):
+    def load_csv(self, filename = "pycode/data/test_DB.csv"):
         """
         insère dans la table les données de filename qui doit être placé dans le dossier data
         """
+
+        # - - - création d'une liste de dictionnaire contenant les données à insérer dans la DB
         tablename = []
         les_dict = []
-        with open("data/{}".format(filename), 'r') as f:
+        with open(filename, 'r') as f:
             next_flag = True
             for line in f.readlines():
                 if next_flag:
                     next_flag = False
-                    linesplit = line.strip().split()
-                    tablename .append(linesplit[0])
+                    linesplit = line.strip().split(',')
+                    tablename.append(linesplit[0].strip())
                     dict = {}
                     col_name = []
                     for i, col in enumerate(linesplit[1:]):
                         if col != '':
-                            col_name.append(col)
+                            col_name.append((i+1, col))
+                            dict[col] = []
                 else:
-                    linesplit = line.strip().split()
-                    if linesplit[0] == "next":
+                    linesplit = line.strip().split(',')
+                    if "next" in linesplit[0]:
                         next_flag = True
-// - - - - - - - - -  - - - - - - - - à finir
+                        les_dict.append(dict)
+                    else:
+                        for i, col in col_name:
+                            dict[col].append(linesplit[i].strip())
+
+        # - - - Ajout de l'ensemble des dictionnaires dans la DB
+        for i, dict in enumerate(les_dict):
+            self.Insert(tablename[i], dict)
+
+
 
             
 class Database_Read(Database):
@@ -213,8 +225,8 @@ a = Database("projet", "admin", "admin","localhost","5432")
 
 print(a)
 
-data = {"nom" : ["amazon", "fnac", "mcdo"]}
 
 i = Database_Insert("projet", "admin", "admin","localhost","5432")
 
-i.Insert("client", data)
+
+i.load_csv()
