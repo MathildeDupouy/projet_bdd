@@ -5,6 +5,7 @@
 CREATE TABLE IF NOT EXISTS public.chantier
 (
     id serial PRIMARY KEY,
+    nom varchar(50),
     debut timestamp with time zone NOT NULL,
     fin timestamp with time zone NOT NULL,
     commentaire varchar(100),

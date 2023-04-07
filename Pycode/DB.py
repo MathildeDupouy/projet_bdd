@@ -9,6 +9,8 @@ from psycopg2 import OperationalError
 import xml.etree.ElementTree as et
 import os
 import datetime
+import locale
+locale.setlocale(locale.LC_TIME,'')
 
 class Database():
     def __init__(self, dbname, user, pwd, host, port):
@@ -216,17 +218,43 @@ class Database_Read(Database):
         if show == True:
             print(f"Nombre de chantier en cours : {len(record)}")
             for i, line in enumerate(record):
-                print(f"Chantier {i} : {line[0]} de {line[1]} à {line[2]}, {line[3]}")
+                print(f"Chantier {i} : {line[0]} du {line[1].strftime('%d %b %Y à %Hh%M')} au {line[2].strftime('%d %b %Y à %Hh%M')}, {line[3]}")
         return record
 
+    def get_futur_chantiers(self, show = False):
+        query = """SELECT Cl.nom, Ch.debut, ch.fin, ch.commentaire
+        FROM Chantier Ch
+        JOIN CLient Cl ON  Ch.id_client = Cl.id
+        WHERE Ch.debut >= NOW()
+        ORDER BY Ch.debut;"""
+        with self.conn:
+            with self.conn.cursor() as curs:
+                try:
+                    curs.execute(query)
+                    record = curs.fetchall()
+                except OperationalError as e:
+                    print(f"The error '{e}' occured in 'get_futur_chantier'")
+                    record = None
+        if show == True:
+            print(f"Nombre de chantier à venir : {len(record)}")
+            for i, line in enumerate(record):
+                print(f"Chantier {i} : {line[0]} du {line[1].strftime('%d %b %Y à %Hh%M')} au {line[2].strftime('%d %b %Y à %Hh%M')}, {line[3]}")
+        return record
 
+    def get_EDT(self, nom, prenom, poste):
+        query = """
+        SELECT
+        """
+
+        
 
 a = Database("projet", "admin", "admin","localhost","5432")
 
 print(a)
 
-
 i = Database_Insert("projet", "admin", "admin","localhost","5432")
-
-
 i.load_csv()
+
+r = Database_Read("projet", "admin", "admin","localhost","5432")
+r.get_futur_chantiers(True)
+
