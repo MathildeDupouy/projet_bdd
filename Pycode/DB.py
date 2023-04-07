@@ -241,10 +241,38 @@ class Database_Read(Database):
                 print(f"Chantier {i} : {line[0]} du {line[1].strftime('%d %b %Y à %Hh%M')} au {line[2].strftime('%d %b %Y à %Hh%M')}, {line[3]}")
         return record
 
-    def get_EDT(self, nom, prenom, poste):
-        query = """
-        SELECT
+    def get_EDT(self, nom, prenom, poste, pwd, show = False):
         """
+        Renvoie les chantiers d'un salarié pour la semaine à venir 
+
+        /!\ NE fonctionne pas pour l'instant
+        
+        """
+        Jplus7 = datetime.datetime.now() + datetime.timedelta(days = 7)
+        J = datetime.datetime.now()
+        query = """SELECT Or.debut, Or.fin, Ch.nom, Ch.materiau
+FROM ordre_de_mission Or
+JOIN ouvrier Ou ON Or.id_ouvrier = Ou.id
+JOIN chantier Ch ON Or.id_chantier = Ch.id
+WHERE 
+Ou.nom = '{}', Ou.prenom = '{}', Ou.poste = '{}', Ou.pwd = '{}',
+Or.debut <= '{}', Or.fin >= '{}'
+ORDER BY Or.debut;
+        """.format(nom, prenom, poste, pwd, Jplus7, J)
+        print(query)
+        with self.conn:
+            with self.conn.cursor() as curs:
+                try:
+                    curs.execute(query)
+                    record = curs.fetchall()
+                except OperationalError as e:
+                    print(f"The error '{e}' occured in 'get_futur_chantier'")
+                    record = None
+        if show == True:
+            print(f"Nombre de chantier cette semaine : {len(record)}")
+            for i, line in enumerate(record):
+                print(f"Chantier {i} : {line[2]} du {line[0].strftime('%d %b %Y à %Hh%M')} au {line[1].strftime('%d %b %Y à %Hh%M')}, Pour {line[3]}")
+        return record
 
         
 
@@ -253,8 +281,11 @@ a = Database("projet", "admin", "admin","localhost","5432")
 print(a)
 
 i = Database_Insert("projet", "admin", "admin","localhost","5432")
-i.load_csv()
+
 
 r = Database_Read("projet", "admin", "admin","localhost","5432")
-r.get_futur_chantiers(True)
+
+r.get_EDT("riner", "teddy", "judoka", "TR", True)
+
+
 
