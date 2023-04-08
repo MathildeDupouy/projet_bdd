@@ -244,22 +244,18 @@ class Database_Read(Database):
     def get_EDT(self, nom, prenom, poste, pwd, show = False):
         """
         Renvoie les chantiers d'un salarié pour la semaine à venir 
-
-        /!\ NE fonctionne pas pour l'instant
-        
         """
         Jplus7 = datetime.datetime.now() + datetime.timedelta(days = 7)
         J = datetime.datetime.now()
-        query = """SELECT Or.debut, Or.fin, Ch.nom, Ch.materiau
-FROM ordre_de_mission Or
-JOIN ouvrier Ou ON Or.id_ouvrier = Ou.id
-JOIN chantier Ch ON Or.id_chantier = Ch.id
+        query = """SELECT Ord.debut, Ord.fin, Ch.nom, Ch.materiau
+FROM ordre_de_mission Ord
+JOIN ouvrier Ou ON Ord.id_ouvrier = Ou.id
+JOIN chantier Ch ON Ord.id_chantier = Ch.id
 WHERE 
-Ou.nom = '{}', Ou.prenom = '{}', Ou.poste = '{}', Ou.pwd = '{}',
-Or.debut <= '{}', Or.fin >= '{}'
-ORDER BY Or.debut;
+Ou.nom='{}' AND Ou.prenom='{}' AND Ou.poste='{}' AND Ou.pwd='{}' AND
+Ord.debut<='{}' AND Ord.fin>='{}'
+ORDER BY Ord.debut;
         """.format(nom, prenom, poste, pwd, Jplus7, J)
-        print(query)
         with self.conn:
             with self.conn.cursor() as curs:
                 try:
@@ -271,7 +267,7 @@ ORDER BY Or.debut;
         if show == True:
             print(f"Nombre de chantier cette semaine : {len(record)}")
             for i, line in enumerate(record):
-                print(f"Chantier {i} : {line[2]} du {line[0].strftime('%d %b %Y à %Hh%M')} au {line[1].strftime('%d %b %Y à %Hh%M')}, Pour {line[3]}")
+                print(f"Chantier {i} : {line[2]} du {line[0].strftime('%d %b %Y à %Hh%M')} au {line[1].strftime('%d %b %Y à %Hh%M')}, Prévoir {line[3]}")
         return record
 
         
