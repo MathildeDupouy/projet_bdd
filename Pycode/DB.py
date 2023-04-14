@@ -272,16 +272,15 @@ ORDER BY Ord.debut;
 
         
 
-a = Database("projet", "admin", "admin","localhost","5432")
+if __name__ == "__main__":
+    a = Database("projet", "admin", "admin","localhost","5432")
+    print(a)
 
-print(a)
+    i = Database_Insert("projet", "admin", "admin","localhost","5432")
 
-i = Database_Insert("projet", "admin", "admin","localhost","5432")
+    r = Database_Read("projet", "admin", "admin","localhost","5432")
+    r.get_EDT("riner", "teddy", "judoka", "TR", True)
 
-
-r = Database_Read("projet", "admin", "admin","localhost","5432")
-
-r.get_EDT("riner", "teddy", "judoka", "TR", True)
 
 
 
