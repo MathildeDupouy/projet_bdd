@@ -83,6 +83,12 @@ class Database():
             columns.append(col[0])
         return columns
 
+    def disconnect(self):
+        self.conn.close()
+
+    def __del__(self):
+        self.conn.close()
+
 class Database_Insert(Database):
     def import_test_data(self, path = "data_pour_test/data.xml"):
         
@@ -139,6 +145,8 @@ class Database_Insert(Database):
     def query_insert(self, table_name, data, n):
         """
         créé la query 'INSERT INTO' à partir d'un nom de table et d'un dictionnaire de données
+
+        
         """
         query = "INSERT INTO {}(".format(table_name)
         for i, key in enumerate(data.keys()):
@@ -198,11 +206,13 @@ class Database_Insert(Database):
         for i, dict in enumerate(les_dict):
             self.Insert(tablename[i], dict)
 
-
-
             
 class Database_Read(Database):
     def get_current_chantiers(self, show = False):
+        """
+        Renvoi les chantier en cours à la date et hure d'exécution
+        (nom, debut, fin, commentaire)
+        """
         query = """SELECT Cl.nom, Ch.debut, ch.fin, ch.commentaire
         FROM Chantier Ch
         JOIN CLient Cl ON  Ch.id_client = Cl.id
@@ -222,6 +232,10 @@ class Database_Read(Database):
         return record
 
     def get_futur_chantiers(self, show = False):
+        """
+        Renvoie les chantiers à venir
+        (nom, debut, fin, commentaire)
+        """
         query = """SELECT Cl.nom, Ch.debut, ch.fin, ch.commentaire
         FROM Chantier Ch
         JOIN CLient Cl ON  Ch.id_client = Cl.id
@@ -244,10 +258,11 @@ class Database_Read(Database):
     def get_EDT(self, nom, prenom, poste, pwd, show = False):
         """
         Renvoie les chantiers d'un salarié pour la semaine à venir 
+        (nom, debut, fin, materiau)
         """
         Jplus7 = datetime.datetime.now() + datetime.timedelta(days = 7)
         J = datetime.datetime.now()
-        query = """SELECT Ord.debut, Ord.fin, Ch.nom, Ch.materiau
+        query = """SELECT Ch.nom, Ord.debut, Ord.fin, Ch.materiau
 FROM ordre_de_mission Ord
 JOIN ouvrier Ou ON Ord.id_ouvrier = Ou.id
 JOIN chantier Ch ON Ord.id_chantier = Ch.id
@@ -267,15 +282,42 @@ ORDER BY Ord.debut;
         if show == True:
             print(f"Nombre de chantier cette semaine : {len(record)}")
             for i, line in enumerate(record):
-                print(f"Chantier {i} : {line[2]} du {line[0].strftime('%d %b %Y à %Hh%M')} au {line[1].strftime('%d %b %Y à %Hh%M')}, Prévoir {line[3]}")
+                print(f"Chantier {i} : {line[0]} du {line[1].strftime('%d %b %Y à %Hh%M')} au {line[2].strftime('%d %b %Y à %Hh%M')}, Prévoir {line[3]}")
         return record
+    def availaible_vehicule(self, date):
+        """
+        renvoie la liste des vehicules disponible à une date donnée
+         date doit être soit du type datetime soit une str de la forme "DD-MM-YYYY"
+        (modele, taille, immatriculation, nom_chantier)
+        """
+        if type(date) == str:
+            date = date + "-09-00"
+            date = datetime.datetime.strptime(date, "%d-%m-%Y-%H-%M")
+        query = """
+        SELECT Veh.modele, Veh.taille, Veh.immatriculation
+        EXCEPT(
+        SELECT Veh.modele, Veh.taille, Veh.immatriculation
+        FROM vehicule Veh
+        JOIN reservation Res ON Res.immatriculation = Veh.immatriculation
+        JOIN chantier Ch ON Ch.id = Res.id_chantier
+        WHERE Res.debut<='{}' AND Res.fin>='{});
+        """.format(date)
+        with self.conn:
+            with self.conn.cursor() as curs:
+                try:
+                    curs.execute(query)
+                    record = curs.fetchall()
+                except OperationalError as e:
+                    print(f"The error '{e}' occured in 'get_futur_chantier'")
+                    record = None
+        
 
         
 
 if __name__ == "__main__":
     a = Database("projet", "admin", "admin","localhost","5432")
     print(a)
-
+    print(a.table)
     i = Database_Insert("projet", "admin", "admin","localhost","5432")
 
     r = Database_Read("projet", "admin", "admin","localhost","5432")
