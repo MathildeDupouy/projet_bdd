@@ -288,7 +288,7 @@ ORDER BY Ord.debut;
         """
         renvoie la liste des vehicules disponible à une date donnée
          date doit être soit du type datetime soit une str de la forme "DD-MM-YYYY"
-        (modele, taille, immatriculation, nom_chantier)
+        (modele, taille, immatriculation)
         """
         if type(date) == str:
             date = date + "-09-00"
@@ -318,7 +318,7 @@ ORDER BY Ord.debut;
     
     def get_all(self, table):
         """
-        renvoie la liste des noms associé à une table, ("ouvrier", "chantier" ou "client")
+        renvoie la liste des noms associé à une table
         (*)
         """
         query = """
@@ -344,7 +344,7 @@ if __name__ == "__main__":
 
     r = Database_Read("projet", "admin", "admin","localhost","5432")
     r.get_EDT("riner", "teddy", "judoka", "TR", True)
-    print(r.get_nom("chantier"))
+    print(r.get_all("chantier"))
 
 
 
