@@ -316,13 +316,13 @@ ORDER BY Ord.debut;
                 print(f"Chantier {i} : {line[0]} du {line[1].strftime('%d %b %Y à %Hh%M')} au {line[2].strftime('%d %b %Y à %Hh%M')}, Prévoir {line[3]}")
         return record
     
-    def get_nom(self, table):
+    def get_all(self, table):
         """
         renvoie la liste des noms associé à une table, ("ouvrier", "chantier" ou "client")
-        (nom)
+        (*)
         """
         query = """
-        SELECT nom FROM {};
+        SELECT * FROM {};
         """.format(table)
         with self.conn:
             with self.conn.cursor() as curs:
@@ -344,7 +344,7 @@ if __name__ == "__main__":
 
     r = Database_Read("projet", "admin", "admin","localhost","5432")
     r.get_EDT("riner", "teddy", "judoka", "TR", True)
-    print(r.get_nom("client"))
+    print(r.get_nom("chantier"))
 
 
 
