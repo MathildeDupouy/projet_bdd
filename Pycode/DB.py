@@ -316,7 +316,7 @@ ORDER BY Ord.debut;
                 print(f"Chantier {i} : {line[0]} du {line[1].strftime('%d %b %Y à %Hh%M')} au {line[2].strftime('%d %b %Y à %Hh%M')}, Prévoir {line[3]}")
         return record
     
-    def get_nom(self, table):
+    def get_all(self, table):
         """
         renvoie la liste des noms associé à une table, ("ouvrier", "chantier" ou "client")
         (*)
