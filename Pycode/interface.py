@@ -38,16 +38,17 @@ class Interface() :
     def run(self):
         entree = ""
         while entree != " " :
-            entree = input("Que voulez-vous faire ?\n\
-                           insert pour insérer un nouvel élément dans la database,\n\
-                               SPACE pour quitter.\n\
-                        """)
+            entree = input("""
+Que voulez-vous faire ?
+insert pour insérer un nouvel élément dans la database,
+SPACE pour quitter.
+""")
 
             if entree == "insert" :
                 self.insert_data()
             elif entree == " " :
-                print(self.database_read.get_all("ouvrier"))
                 self.quit()
+                return
             else :
                 print("Entrée non valide.")
    
@@ -61,6 +62,8 @@ class Interface() :
                         ".format(TABLES[0], TABLES[1], TABLES[2], TABLES[3])))
         if table_id == 4 :
             self.quit()
+            return
+        ## Entrer un chantier
         elif TABLES[table_id] == "chantier" :
             data = {}
             data["nom"] = input("Entrez  le nom du chantier : ")
@@ -69,7 +72,28 @@ class Interface() :
             data["commentaire"] = input("Un commentaire ? ")
             data["facture"] = input("Quel est le numéro de facture ? ")
             # Client
-            clients = self.read
+            self.print_clients()
+            data["id_client"] = int(input("Quel est le client du chantier ?"))
+            # Ouvriers
+            self.print_ouvriers()
+            ouvriers = []
+            entree = input("Missionnez un ouvrier sur le chantier : ")
+            while entree != " " :
+                ouvriers.append(int(entree))
+                print("Si vous voulez missionner un autre ouvrier, entrez son numéro, sinon tapez espace.")
+                entree = input("")
+            # TODO
+            #self.database_insert.Insert("ordre_de_mission", {"id_chantier" : []})
+            # Vehicule
+            self.print_vehicules()
+            vehicules = {}
+            entree = input("Réservez un véhicule pour le chantier : ")
+            while entree != " " :
+                vehicules.append(int(entree))
+                print("Si vous voulez réserver un autre véhicule, entrez son numéro, sinon tapez espace.")
+                entree = input("")
+            
+        ## Entrer dans client, ouvrier ou vehicule
         else :
             data = {}
             for col_name in TABLES_COL[table_id] :
@@ -77,4 +101,21 @@ class Interface() :
                 data[col_name] = data_col
             self.database_insert.Insert(TABLES[table_id], data)
             print("L'entrée de {} a bien été insérée.".format(TABLES[table_id]))
-            
+
+    def print_ouvriers(self) :
+        ouvriers = [(client[0], client[1], client[2]) for client in self.database_read.get_all("ouvrier")]
+        print("Les ouvriers sont :")
+        for ouvrier in ouvriers :
+            print("- {} : {} {}".format(ouvrier[0], ouvrier[1], ouvrier[2]))
+
+    def print_clients(self) :
+        clients = [(client[0], client[1]) for client in self.database_read.get_all("client")]
+        print("Les clients sont :")
+        for client in clients :
+            print("- {} : {}".format(client[0], client[1]))
+
+    def print_vehicules(self) :
+        vehicules = [(vehicule[0], vehicule[1], vehicule[2]) for vehicule in self.database_read.get_all("vehicule")]
+        print("Les véhicules sont :")
+        for vehicule in vehicules :
+            print("- {} : {} {}".format(vehicule[0], vehicule[2], vehicule[1]))
