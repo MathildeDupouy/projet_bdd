@@ -41,8 +41,7 @@ class Interface() :
             entree = input("""
 Que voulez-vous faire ?
 insert pour insérer un nouvel élément dans la database,
-SPACE pour quitter.
-""")
+SPACE pour quitter.""")
 
             if entree == "insert" :
                 self.insert_data()
@@ -53,7 +52,7 @@ SPACE pour quitter.
                 print("Entrée non valide.")
    
     def insert_data(self) :
-        table_id = int(input("Dans quelle table souhaitez-vous insérer ?\n \
+        table_id = int(input("Dans quelle table souhaitez-vous insérer ?\n\
                         0 : {},\n\
                         1 : {},\n\
                         2 : {},\n\
@@ -66,33 +65,74 @@ SPACE pour quitter.
         ## Entrer un chantier
         elif TABLES[table_id] == "chantier" :
             data = {}
-            data["nom"] = input("Entrez  le nom du chantier : ")
+            data["nom"] = input("Entrez le nom du chantier : ")
             data["debut"] = input("Quand débutera le chantier ? (format JJ/MM/AAAA HH:mm) ")
             data["fin"] = input("Quand terminera le chantier ? (format JJ/MM/AAAA HH:mm) ")
             data["commentaire"] = input("Un commentaire ? ")
             data["facture"] = input("Quel est le numéro de facture ? ")
+            data["materiau"] = input("Quel est le materiau concerné (PVC ou CAOUTCHOUC ? ")
             # Client
             self.print_clients()
-            data["id_client"] = int(input("Quel est le client du chantier ?"))
+            data["id_client"] = input("Quel est le client du chantier ?")
+            # Insertion chantier
+            res_insert = self.database_insert.Insert("chantier", data)
+            id_chantier = res_insert[0]
             # Ouvriers
             self.print_ouvriers()
+            n = 0
             ouvriers = []
+            debuts = []
+            fins = []
             entree = input("Missionnez un ouvrier sur le chantier : ")
+            # TODO controler date ?
             while entree != " " :
-                ouvriers.append(int(entree))
+                ouvriers.append(entree)
+                entree = input("Quelle date commence-t-il ? (DD/MM/AAAA HH:mm) ")
+                debuts.append(entree)
+                entree = input("Quelle date finit-il ? (DD/MM/AAAA HH:mm) ")
+                fins.append(entree)
+                n += 1
                 print("Si vous voulez missionner un autre ouvrier, entrez son numéro, sinon tapez espace.")
                 entree = input("")
-            # TODO
-            #self.database_insert.Insert("ordre_de_mission", {"id_chantier" : []})
+            if(n == 1) :
+                self.database_insert.Insert("ordre_de_mission", \
+                                            {"id_chantier" : id_chantier,\
+                                              "id_ouvrier" : ouvriers[0],\
+                                              "debut" : debuts[0], "fin" : fins[0]})
+            else :
+                self.database_insert.Insert("ordre_de_mission", \
+                                            {"id_chantier" : [id_chantier] * n,\
+                                              "id_ouvrier" : ouvriers,\
+                                              "debut" : debuts, "fin" : fins})
+
             # Vehicule
             self.print_vehicules()
-            vehicules = {}
+            n = 0
+            vehicules = []
+            debuts = []
+            fins = []
             entree = input("Réservez un véhicule pour le chantier : ")
+            # TODO controler date ?
             while entree != " " :
-                vehicules.append(int(entree))
+                vehicules.append(entree)
+                entree = input("Quelle date de début ? (DD/MM/AAAA HH:mm) ")
+                debuts.append(entree)
+                entree = input("Quelle date de fin ? (DD/MM/AAAA HH:mm) ")
+                fins.append(entree)
+                n += 1
                 print("Si vous voulez réserver un autre véhicule, entrez son numéro, sinon tapez espace.")
                 entree = input("")
-            
+            if (n == 1) :
+                self.database_insert.Insert("reservation", \
+                                {"id_chantier" : id_chantier,\
+                                  "immatriculation" : vehicules[0],\
+                                      "debut" : debuts[0], "fin" : fins[0]})
+            else :
+                self.database_insert.Insert("reservation", \
+                            {"id_chantier" : [id_chantier] * n,\
+                              "immatriculation" : vehicules[0],\
+                                  "debut" : debuts[0], "fin" : fins[0]})
+
         ## Entrer dans client, ouvrier ou vehicule
         else :
             data = {}

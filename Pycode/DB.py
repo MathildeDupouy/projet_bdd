@@ -114,13 +114,14 @@ class Database_Insert(Database):
 
     def Insert(self, table_name, data):
         """
-        Ajoute des donnée dans la table demandé
+        Ajoute des données dans la table demandée
         INPUT :
             - table_name : nom de la table 
             - data : dictionnaire avec pour clefs le nom des colonnes de la table
                      et en valeur une liste des données à ajouter, il faut que toutes
                      les listes soit de la même taille
-        OUTPUT None, ajoute dans la table spécifié les données de data.
+        OUTPUT les données insérees (retournées par le RETURNING *), ajoute dans
+        la table spécifié les données de data.
         """
         test = True
         n = 1
@@ -137,10 +138,11 @@ class Database_Insert(Database):
                 with self.conn.cursor() as curs:
                     try:
                         curs.execute(query)
+                        res = curs.fetchone()
                     except OperationalError as e:
                         print(f"The error '{e}' occured in 'Insert_{table_name}'")
             self.conn.commit()
-        return None
+        return res
     
     def query_insert(self, table_name, data, n):
         """
@@ -160,7 +162,7 @@ class Database_Insert(Database):
             query += " ('" + str(liste[0]) + "'"
             for elt in liste[1:]:
                 query += ", '" + elt + "'"
-            query += ");"
+            query += ") RETURNING * ;"
         else:
                 query += " ('" + str(liste[0][0]) + "'"
                 for j in range(1, len(liste)):
@@ -169,7 +171,7 @@ class Database_Insert(Database):
                     query += "), ('" + str(liste[0][i]) + "'"
                     for j in range(1, len(liste)):
                         query += ", '" + str(liste[j][i]) + "'"
-                query += ");"
+                query += ") RETURNING * ;"
         return query
 
     def load_csv(self, filename = "pycode/data/test_DB.csv"):
@@ -333,7 +335,22 @@ ORDER BY Ord.debut;
                     print(f"The error '{e}' occured in 'get_futur_chantier'")
                     record = None
         return record
-        
+
+    def get_last_id(self, table) :
+        """
+        Get the last id used in the table.
+
+        """
+        query = "SELECT currval(pg_get_serial_sequence('{}', 'id'));".format(table)
+        with self.conn:
+            with self.conn.cursor() as curs:
+                try:
+                    curs.execute(query)
+                    record = curs.fetchall()
+                except OperationalError as e:
+                    print(f"The error '{e}' occured in 'get_futur_chantier'")
+                    record = None
+        return record
 
 if __name__ == "__main__":
     a = Database("projet", "admin", "admin","localhost","5432")
