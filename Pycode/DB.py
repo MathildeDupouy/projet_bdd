@@ -284,7 +284,7 @@ ORDER BY Ord.debut;
             for i, line in enumerate(record):
                 print(f"Chantier {i} : {line[0]} du {line[1].strftime('%d %b %Y à %Hh%M')} au {line[2].strftime('%d %b %Y à %Hh%M')}, Prévoir {line[3]}")
         return record
-    def availaible_vehicule(self, date):
+    def availaible_vehicule(self, date, show = False):
         """
         renvoie la liste des vehicules disponible à une date donnée
          date doit être soit du type datetime soit une str de la forme "DD-MM-YYYY"
@@ -310,18 +310,41 @@ ORDER BY Ord.debut;
                 except OperationalError as e:
                     print(f"The error '{e}' occured in 'get_futur_chantier'")
                     record = None
-        
-
+        if show == True:
+            print(f"Nombre de véhicule disponible : {len(record)}")
+            for i, line in enumerate(record):
+                print(f"Chantier {i} : {line[0]} du {line[1].strftime('%d %b %Y à %Hh%M')} au {line[2].strftime('%d %b %Y à %Hh%M')}, Prévoir {line[3]}")
+        return record
+    
+    def get_nom(self, table):
+        """
+        renvoie la liste des noms associé à une table, ("ouvrier", "chantier" ou "client")
+        (nom)
+        """
+        query = """
+        SELECT nom FROM {};
+        """.format(table)
+        with self.conn:
+            with self.conn.cursor() as curs:
+                try:
+                    curs.execute(query)
+                    record = curs.fetchall()
+                except OperationalError as e:
+                    print(f"The error '{e}' occured in 'get_futur_chantier'")
+                    record = None
+        return record
         
 
 if __name__ == "__main__":
     a = Database("projet", "admin", "admin","localhost","5432")
     print(a)
     print(a.table)
+
     i = Database_Insert("projet", "admin", "admin","localhost","5432")
 
     r = Database_Read("projet", "admin", "admin","localhost","5432")
     r.get_EDT("riner", "teddy", "judoka", "TR", True)
+    print(r.get_nom("client"))
 
 
 
