@@ -6,6 +6,7 @@ Created on Fri Apr 14 09:16:51 2023
 """
 
 from DB import Database, Database_Insert, Database_Read
+import colorama
 
 TABLES = ["client", "ouvrier", "vehicule", "chantier"]
 TABLES_COL = [
@@ -13,6 +14,10 @@ TABLES_COL = [
     ["nom", "prenom", "poste", "pwd"],
     ["immatriculation", "taille", "modele"],
     ["nom", "debut", "fin", "commentaire", "materiau", "id_client", "facture"]]
+BRIGHT_RED = colorama.Fore.RED + colorama.Style.BRIGHT
+BRIGHT_GREEN = colorama.Fore.GREEN + colorama.Style.BRIGHT
+BRIGHT_BLUE = colorama.Fore.BLUE + colorama.Style.BRIGHT
+RESET = colorama.Style.RESET_ALL
 
 class Interface() :
     def __init__(self) :
@@ -21,9 +26,9 @@ class Interface() :
                             "quitter"]
 
     def connection_db(self) : 
-        dbname = input("nom de la database ? (ex: projet, postgres...)")
+        dbname = input(BRIGHT_RED  + "nom de la database ? (ex: projet, postgres...) ")
         user = input("nom de l'utilisateur ? (ex: admin, postgres...)")
-        pwd = input("mot de passe ? (ex: admin...)")
+        pwd = input("mot de passe ? (ex: admin...)" + RESET)
         host = "localhost"
         port = "5432"
         self.database = Database(dbname, user, pwd, host, port)
@@ -38,34 +43,42 @@ class Interface() :
     def run(self):
         entree = ""
         while entree != " " :
-            entree = input("""
+            print(BRIGHT_GREEN + """
 Que voulez-vous faire ?
 insert pour insérer un nouvel élément dans la database,
+planning pour consulter le planning,
+planning ouvrier pour consulter le planning d'un ouvrier en particulier,'
 SPACE pour quitter.""")
+            entree = input(RESET + "")
 
             if entree == "insert" :
                 self.insert_data()
+            if entree == "planning" :
+                self.print_planning()
+            if entree == "planning ouvrier" :
+                self.print_planning_ouvrier()
             elif entree == " " :
                 self.quit()
                 return
             else :
-                print("Entrée non valide.")
+                print(BRIGHT_RED + "Entrée non valide." + RESET)
    
     def insert_data(self) :
-        table_id = int(input("Dans quelle table souhaitez-vous insérer ?\n\
+        print(BRIGHT_BLUE + "Dans quelle table souhaitez-vous insérer ?\n\
                         0 : {},\n\
                         1 : {},\n\
                         2 : {},\n\
                         3 : {},\n\
                         4 : quitter.\
-                        ".format(TABLES[0], TABLES[1], TABLES[2], TABLES[3])))
+                        ".format(TABLES[0], TABLES[1], TABLES[2], TABLES[3]))
+        table_id = int(input(RESET + ""))
         if table_id == 4 :
             self.quit()
             return
         ## Entrer un chantier
         elif TABLES[table_id] == "chantier" :
             data = {}
-            data["nom"] = input("Entrez le nom du chantier : ")
+            data["nom"] = input(BRIGHT_BLUE + "Entrez le nom du chantier : ")
             data["debut"] = input("Quand débutera le chantier ? (format JJ/MM/AAAA HH:mm) ")
             data["fin"] = input("Quand terminera le chantier ? (format JJ/MM/AAAA HH:mm) ")
             data["commentaire"] = input("Un commentaire ? ")
@@ -73,7 +86,7 @@ SPACE pour quitter.""")
             data["materiau"] = input("Quel est le materiau concerné (PVC ou CAOUTCHOUC ? ")
             # Client
             self.print_clients()
-            data["id_client"] = input("Quel est le client du chantier ?")
+            data["id_client"] = input(BRIGHT_BLUE + "Quel est le client du chantier ?")
             # Insertion chantier
             res_insert = self.database_insert.Insert("chantier", data)
             id_chantier = res_insert[0]
@@ -83,7 +96,7 @@ SPACE pour quitter.""")
             ouvriers = []
             debuts = []
             fins = []
-            entree = input("Missionnez un ouvrier sur le chantier : ")
+            entree = input(BRIGHT_BLUE + "Missionnez un ouvrier sur le chantier : ")
             # TODO controler date ?
             while entree != " " :
                 ouvriers.append(entree)
@@ -106,22 +119,22 @@ SPACE pour quitter.""")
                                               "debut" : debuts, "fin" : fins})
 
             # Vehicule
-            self.print_vehicules()
             n = 0
             vehicules = []
             debuts = []
             fins = []
-            entree = input("Réservez un véhicule pour le chantier : ")
-            # TODO controler date ?
-            while entree != " " :
+            debut = input(BRIGHT_BLUE + "Quelle date de début de réservation ? (DD/MM/AAAA HH:mm) ")
+            while debut != " " :
+                debuts.append(debut)
+                fin = input("Quelle date de fin ? (DD/MM/AAAA HH:mm) ")
+                fins.append(fin)
+                self.print_available_vehicules(debut, fin)
+                entree = input(BRIGHT_BLUE + "Réservez un véhicule pour le chantier : ")
                 vehicules.append(entree)
-                entree = input("Quelle date de début ? (DD/MM/AAAA HH:mm) ")
-                debuts.append(entree)
-                entree = input("Quelle date de fin ? (DD/MM/AAAA HH:mm) ")
-                fins.append(entree)
                 n += 1
-                print("Si vous voulez réserver un autre véhicule, entrez son numéro, sinon tapez espace.")
-                entree = input("")
+                print(BRIGHT_BLUE + "Si vous voulez réserver un autre véhicule, entrez une nouvelle date de début, sinon, tapez espace.")
+                debut = input("") 
+
             if (n == 1) :
                 self.database_insert.Insert("reservation", \
                                 {"id_chantier" : id_chantier,\
@@ -142,20 +155,38 @@ SPACE pour quitter.""")
             self.database_insert.Insert(TABLES[table_id], data)
             print("L'entrée de {} a bien été insérée.".format(TABLES[table_id]))
 
+    def print_planning(self) :
+        self.database_read.get_futur_chantiers(True)
+
+    def print_planning_ouvrier(self) :
+        print(BRIGHT_GREEN + "De quel ouvrier voulez-vous connaître le planning de la semaine ?")
+        ouvriers = self.print_ouvriers()
+        id_ouvrier = int(input(""))
+        ouvrier = [el for el in ouvriers if el[0] == id_ouvrier][0]
+        mdp = input("Mot de passe : ")
+        self.database_read.get_EDT(ouvrier[1], ouvrier[2], ouvrier[3], mdp, True)
+
     def print_ouvriers(self) :
-        ouvriers = [(client[0], client[1], client[2]) for client in self.database_read.get_all("ouvrier")]
-        print("Les ouvriers sont :")
+        ouvriers = [(ouvrier[0], ouvrier[1], ouvrier[2], ouvrier[3]) for ouvrier in self.database_read.get_all("ouvrier")]
+        print(RESET + "Les ouvriers sont :")
         for ouvrier in ouvriers :
             print("- {} : {} {}".format(ouvrier[0], ouvrier[1], ouvrier[2]))
+        return ouvriers
 
     def print_clients(self) :
         clients = [(client[0], client[1]) for client in self.database_read.get_all("client")]
-        print("Les clients sont :")
+        print(RESET + "Les clients sont :")
         for client in clients :
             print("- {} : {}".format(client[0], client[1]))
 
     def print_vehicules(self) :
         vehicules = [(vehicule[0], vehicule[1], vehicule[2]) for vehicule in self.database_read.get_all("vehicule")]
-        print("Les véhicules sont :")
+        print(RESET + "Les véhicules sont :")
+        for vehicule in vehicules :
+            print("- {} : {} {}".format(vehicule[0], vehicule[2], vehicule[1]))
+    
+    def print_available_vehicules(self, debut, fin) :
+        vehicules = [(vehicule[0], vehicule[1], vehicule[2]) for vehicule in self.database_read.available_vehicule(debut, fin)]
+        print(RESET + "Les véhicules disponibles sur ces dates sont :")
         for vehicule in vehicules :
             print("- {} : {} {}".format(vehicule[0], vehicule[2], vehicule[1]))

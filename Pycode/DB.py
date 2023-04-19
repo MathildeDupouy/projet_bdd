@@ -212,7 +212,7 @@ class Database_Insert(Database):
 class Database_Read(Database):
     def get_current_chantiers(self, show = False):
         """
-        Renvoi les chantier en cours à la date et hure d'exécution
+        Renvoie les chantiers en cours à la date et heure d'exécution
         (nom, debut, fin, commentaire)
         """
         query = """SELECT Cl.nom, Ch.debut, ch.fin, ch.commentaire
@@ -282,19 +282,23 @@ ORDER BY Ord.debut;
                     print(f"The error '{e}' occured in 'get_futur_chantier'")
                     record = None
         if show == True:
-            print(f"Nombre de chantier cette semaine : {len(record)}")
+            print(f"Nombre de chantiers cette semaine : {len(record)}")
             for i, line in enumerate(record):
                 print(f"Chantier {i} : {line[0]} du {line[1].strftime('%d %b %Y à %Hh%M')} au {line[2].strftime('%d %b %Y à %Hh%M')}, Prévoir {line[3]}")
         return record
-    def availaible_vehicule(self, date, show = False):
+
+    def availaible_vehicule(self, date_debut, date_fin, show = False):
         """
-        renvoie la liste des vehicules disponible à une date donnée
-         date doit être soit du type datetime soit une str de la forme "DD-MM-YYYY"
+        renvoie la liste des vehicules disponibles à une date donnée
+        date doit être soit du type datetime soit une str de la forme "DD-MM-YYYY"
         (modele, taille, immatriculation)
         """
-        if type(date) == str:
-            date = date + "-09-00"
-            date = datetime.datetime.strptime(date, "%d-%m-%Y-%H-%M")
+        if type(date_debut) == str:
+            date_debut = date_debut + "-09-00"
+            date_debut = datetime.datetime.strptime(date_debut, "%d-%m-%Y-%H-%M")
+        if type(date_fin) == str:
+            date_fin = date_fin + "-09-00"
+            date_fin = datetime.datetime.strptime(date_fin, "%d-%m-%Y-%H-%M")
         query = """
         SELECT Veh.modele, Veh.taille, Veh.immatriculation
         EXCEPT(
@@ -302,8 +306,8 @@ ORDER BY Ord.debut;
         FROM vehicule Veh
         JOIN reservation Res ON Res.immatriculation = Veh.immatriculation
         JOIN chantier Ch ON Ch.id = Res.id_chantier
-        WHERE Res.debut<='{}' AND Res.fin>='{});
-        """.format(date)
+        WHERE (Res.debut<='{}' AND Res.fin>'{}) OR (Res.debut<'{}' AND Res.fin>='{}));
+        """.format(date_debut, date_debut, date_fin, date_fin)
         with self.conn:
             with self.conn.cursor() as curs:
                 try:
@@ -313,7 +317,7 @@ ORDER BY Ord.debut;
                     print(f"The error '{e}' occured in 'get_futur_chantier'")
                     record = None
         if show == True:
-            print(f"Nombre de véhicule disponible : {len(record)}")
+            print(f"Nombre de véhicules disponible : {len(record)}")
             for i, line in enumerate(record):
                 print(f"Chantier {i} : {line[0]} du {line[1].strftime('%d %b %Y à %Hh%M')} au {line[2].strftime('%d %b %Y à %Hh%M')}, Prévoir {line[3]}")
         return record
@@ -326,22 +330,6 @@ ORDER BY Ord.debut;
         query = """
         SELECT * FROM {};
         """.format(table)
-        with self.conn:
-            with self.conn.cursor() as curs:
-                try:
-                    curs.execute(query)
-                    record = curs.fetchall()
-                except OperationalError as e:
-                    print(f"The error '{e}' occured in 'get_futur_chantier'")
-                    record = None
-        return record
-
-    def get_last_id(self, table) :
-        """
-        Get the last id used in the table.
-
-        """
-        query = "SELECT currval(pg_get_serial_sequence('{}', 'id'));".format(table)
         with self.conn:
             with self.conn.cursor() as curs:
                 try:
