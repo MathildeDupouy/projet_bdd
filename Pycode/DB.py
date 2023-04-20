@@ -264,14 +264,15 @@ class Database_Read(Database):
         """
         Jplus7 = datetime.datetime.now() + datetime.timedelta(days = 7)
         J = datetime.datetime.now()
-        query = """SELECT Ch.nom, Ord.debut, Ord.fin, Ch.materiau
-FROM ordre_de_mission Ord
-JOIN ouvrier Ou ON Ord.id_ouvrier = Ou.id
-JOIN chantier Ch ON Ord.id_chantier = Ch.id
-WHERE 
-Ou.nom='{}' AND Ou.prenom='{}' AND Ou.poste='{}' AND Ou.pwd='{}' AND
-Ord.debut<='{}' AND Ord.fin>='{}'
-ORDER BY Ord.debut;
+        query = """
+        SELECT Ch.nom, Ord.debut, Ord.fin, Ch.materiau
+        FROM ordre_de_mission Ord
+        JOIN ouvrier Ou ON Ord.id_ouvrier = Ou.id
+        JOIN chantier Ch ON Ord.id_chantier = Ch.id
+        WHERE 
+        Ou.nom='{}' AND Ou.prenom='{}' AND Ou.poste='{}' AND Ou.pwd='{}' AND
+        Ord.debut<='{}' AND Ord.fin>='{}'
+        ORDER BY Ord.debut;
         """.format(nom, prenom, poste, pwd, Jplus7, J)
         with self.conn:
             with self.conn.cursor() as curs:
