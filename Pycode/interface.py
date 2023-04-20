@@ -7,6 +7,7 @@ Created on Fri Apr 14 09:16:51 2023
 
 from DB import Database, Database_Insert, Database_Read
 import colorama
+colorama.init(convert=True)
 
 TABLES = ["client", "ouvrier", "vehicule", "chantier"]
 TABLES_COL = [
