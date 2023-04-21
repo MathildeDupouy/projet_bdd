@@ -264,14 +264,15 @@ class Database_Read(Database):
         """
         Jplus7 = datetime.datetime.now() + datetime.timedelta(days = 7)
         J = datetime.datetime.now()
-        query = """SELECT Ch.nom, Ord.debut, Ord.fin, Ch.materiau
-FROM ordre_de_mission Ord
-JOIN ouvrier Ou ON Ord.id_ouvrier = Ou.id
-JOIN chantier Ch ON Ord.id_chantier = Ch.id
-WHERE 
-Ou.nom='{}' AND Ou.prenom='{}' AND Ou.poste='{}' AND Ou.pwd='{}' AND
-Ord.debut<='{}' AND Ord.fin>='{}'
-ORDER BY Ord.debut;
+        query = """
+        SELECT Ch.nom, Ord.debut, Ord.fin, Ch.materiau
+        FROM ordre_de_mission Ord
+        JOIN ouvrier Ou ON Ord.id_ouvrier = Ou.id
+        JOIN chantier Ch ON Ord.id_chantier = Ch.id
+        WHERE 
+        Ou.nom='{}' AND Ou.prenom='{}' AND Ou.poste='{}' AND Ou.pwd='{}' AND
+        Ord.debut<='{}' AND Ord.fin>='{}'
+        ORDER BY Ord.debut;
         """.format(nom, prenom, poste, pwd, Jplus7, J)
         with self.conn:
             with self.conn.cursor() as curs:
@@ -294,19 +295,18 @@ ORDER BY Ord.debut;
         (modele, taille, immatriculation)
         """
         if type(date_debut) == str:
-            date_debut = date_debut + "-09-00"
-            date_debut = datetime.datetime.strptime(date_debut, "%d-%m-%Y-%H-%M")
+            date_debut = datetime.datetime.strptime(date_debut, "%d/%m/%Y %H:%M")
         if type(date_fin) == str:
-            date_fin = date_fin + "-09-00"
-            date_fin = datetime.datetime.strptime(date_fin, "%d-%m-%Y-%H-%M")
+            date_fin = datetime.datetime.strptime(date_fin, "%d/%m/%Y %H:%M")
         query = """
-        SELECT Veh.modele, Veh.taille, Veh.immatriculation
+        SELECT Veh.immatriculation, Veh.modele, Veh.taille
+        FROM vehicule Veh
         EXCEPT(
-        SELECT Veh.modele, Veh.taille, Veh.immatriculation
+        SELECT Veh.immatriculation, Veh.modele, Veh.taille
         FROM vehicule Veh
         JOIN reservation Res ON Res.immatriculation = Veh.immatriculation
         JOIN chantier Ch ON Ch.id = Res.id_chantier
-        WHERE (Res.debut<='{}' AND Res.fin>'{}) OR (Res.debut<'{}' AND Res.fin>='{}));
+        WHERE (Res.debut<='{}' AND Res.fin>'{}') OR (Res.debut<'{}' AND Res.fin>='{}'));
         """.format(date_debut, date_debut, date_fin, date_fin)
         with self.conn:
             with self.conn.cursor() as curs:
