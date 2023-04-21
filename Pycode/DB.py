@@ -295,19 +295,18 @@ class Database_Read(Database):
         (modele, taille, immatriculation)
         """
         if type(date_debut) == str:
-            date_debut = date_debut + "-09-00"
-            date_debut = datetime.datetime.strptime(date_debut, "%d-%m-%Y-%H-%M")
+            date_debut = datetime.datetime.strptime(date_debut, "%d/%m/%Y %H:%M")
         if type(date_fin) == str:
-            date_fin = date_fin + "-09-00"
-            date_fin = datetime.datetime.strptime(date_fin, "%d-%m-%Y-%H-%M")
+            date_fin = datetime.datetime.strptime(date_fin, "%d/%m/%Y %H:%M")
         query = """
-        SELECT Veh.modele, Veh.taille, Veh.immatriculation
+        SELECT Veh.immatriculation, Veh.modele, Veh.taille
+        FROM vehicule Veh
         EXCEPT(
-        SELECT Veh.modele, Veh.taille, Veh.immatriculation
+        SELECT Veh.immatriculation, Veh.modele, Veh.taille
         FROM vehicule Veh
         JOIN reservation Res ON Res.immatriculation = Veh.immatriculation
         JOIN chantier Ch ON Ch.id = Res.id_chantier
-        WHERE (Res.debut<='{}' AND Res.fin>'{}) OR (Res.debut<'{}' AND Res.fin>='{}));
+        WHERE (Res.debut<='{}' AND Res.fin>'{}') OR (Res.debut<'{}' AND Res.fin>='{}'));
         """.format(date_debut, date_debut, date_fin, date_fin)
         with self.conn:
             with self.conn.cursor() as curs:

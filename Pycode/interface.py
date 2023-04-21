@@ -54,9 +54,9 @@ SPACE pour quitter.""")
 
             if entree == "insert" :
                 self.insert_data()
-            if entree == "planning" :
+            elif entree == "planning" :
                 self.print_planning()
-            if entree == "planning ouvrier" :
+            elif entree == "planning ouvrier" :
                 self.print_planning_ouvrier()
             elif entree == " " :
                 self.quit()
@@ -84,7 +84,7 @@ SPACE pour quitter.""")
             data["fin"] = input("Quand terminera le chantier ? (format JJ/MM/AAAA HH:mm) ")
             data["commentaire"] = input("Un commentaire ? ")
             data["facture"] = input("Quel est le numéro de facture ? ")
-            data["materiau"] = input("Quel est le materiau concerné (PVC ou CAOUTCHOUC ? ")
+            data["materiau"] = input("Quel est le materiau concerné (PVC ou CAOUTCHOUC) ? ")
             # Client
             self.print_clients()
             data["id_client"] = input(BRIGHT_BLUE + "Quel est le client du chantier ?")
@@ -124,6 +124,7 @@ SPACE pour quitter.""")
             vehicules = []
             debuts = []
             fins = []
+            print("Réservation d'un véhicule pour le chantier : ")
             debut = input(BRIGHT_BLUE + "Quelle date de début de réservation ? (DD/MM/AAAA HH:mm) ")
             while debut != " " :
                 debuts.append(debut)
@@ -144,9 +145,10 @@ SPACE pour quitter.""")
             else :
                 self.database_insert.Insert("reservation", \
                             {"id_chantier" : [id_chantier] * n,\
-                              "immatriculation" : vehicules[0],\
-                                  "debut" : debuts[0], "fin" : fins[0]})
-
+                              "immatriculation" : vehicules,\
+                                  "debut" : debuts, "fin" : fins})
+            print("Le chantier a bien été inséré.")
+    
         ## Entrer dans client, ouvrier ou vehicule
         else :
             data = {}
@@ -187,7 +189,7 @@ SPACE pour quitter.""")
             print("- {} : {} {}".format(vehicule[0], vehicule[2], vehicule[1]))
     
     def print_available_vehicules(self, debut, fin) :
-        vehicules = [(vehicule[0], vehicule[1], vehicule[2]) for vehicule in self.database_read.available_vehicule(debut, fin)]
+        vehicules = [(vehicule[0], vehicule[1], vehicule[2]) for vehicule in self.database_read.availaible_vehicule(debut, fin)]
         print(RESET + "Les véhicules disponibles sur ces dates sont :")
         for vehicule in vehicules :
             print("- {} : {} {}".format(vehicule[0], vehicule[2], vehicule[1]))
