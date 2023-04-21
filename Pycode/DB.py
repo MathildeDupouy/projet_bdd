@@ -346,10 +346,9 @@ if __name__ == "__main__":
     print(a.table)
 
     i = Database_Insert("projet", "admin", "admin","localhost","5432")
-
+    i.load_csv()
     r = Database_Read("projet", "admin", "admin","localhost","5432")
-    r.get_EDT("riner", "teddy", "judoka", "TR", True)
-    print(r.get_all("chantier"))
+
 
 
 
